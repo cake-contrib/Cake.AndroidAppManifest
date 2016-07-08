@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Cake.AndroidAppManifest</id>
+    <version>$version$</version>
+    <description>Cake Build addin for [de]serializing and updating an Android AppManifest.</description>
+    <summary>Cake Build addin for [de]serializing and updating an Android AppManifest.</summary>
+    <language>en-us</language>
+  </metadata>
+  <files>
+    <!-- Portable PCL -->
+    <file src="bin/Release/Cake.AndroidAppManifest.dll" target="lib/net45" />
+    <!-- Source -->
+    <file src="*.cs" target="src" />
+  </files>
+</package>
