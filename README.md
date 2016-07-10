@@ -23,6 +23,7 @@ manifest.VersionName = "1.0";
 manifest.VersionCode = 10;
 manifest.ApplicationIcon = "@drawable/icon";
 manifest.ApplicationLabel = "Android Application";
+manifest.Debuggable = false;
 
 // save
 SerializeAppManifest(new FilePath("AndroidManifest.xml"), manifest);
