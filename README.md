@@ -21,7 +21,7 @@ manifest.MinSdkVersion = 24;
 manifest.PackageName = "com.example.mycoolapp";
 manifest.VersionName = "1.0";
 manifest.VersionCode = 10;
-manifest.ApplicationIcon = "@drawable/icon";
+manifest.ApplicationIcon = "@mipmap/ic_launcher";
 manifest.ApplicationLabel = "Android Application";
 manifest.Debuggable = false;
 
