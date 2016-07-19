@@ -1,2 +1,2 @@
-### New in 0.0.1
+### New in 0.5.0
 - Initial release.
