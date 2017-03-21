@@ -45,7 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AndroidAppManifest.cs" />
-    <Compile Include="AndoridAppManifestAliases.cs" />
+    <Compile Include="AndroidAppManifestAliases.cs" />
     <Compile Include="AndroidVersion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
