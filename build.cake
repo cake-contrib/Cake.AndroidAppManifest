@@ -68,7 +68,7 @@ Action<string, string> Package = (nuspec, basePath) =>
         Owners                   = new [] { "ghuntley" },
 
         ProjectUrl               = new Uri("https://ghuntley.com/"),
-        IconUrl                  = new Uri("https://raw.githubusercontent.com/cake-build/graphics/master/png/cake-medium.png"),
+        IconUrl                  = new Uri("https://cdn.rawgit.com/cake-contrib/graphics/a5cf0f881c390650144b2243ae551d5b9f836196/png/cake-contrib-medium.png"),
         LicenseUrl               = new Uri("https://opensource.org/licenses/MIT"),
         Copyright                = "Copyright (c) Geoffrey Huntley",
         RequireLicenseAcceptance = false,
