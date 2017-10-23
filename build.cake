@@ -84,16 +84,6 @@ Action<string, string> Package = (nuspec, basePath) =>
     });
 };
 
-Action<string> SourceLink = (solutionFileName) =>
-{
-    GitLink("./", new GitLinkSettings() {
-        RepositoryUrl = "https://github.com/ghuntley/Cake.AndroidAppManifest",
-        SolutionFileName = solutionFileName,
-        ErrorsAsWarnings = treatWarningsAsErrors,
-    });
-};
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // SETUP / TEARDOWN
 ///////////////////////////////////////////////////////////////////////////////
@@ -131,8 +121,6 @@ Task("Build")
             .WithProperty("TreatWarningsAsErrors", treatWarningsAsErrors.ToString())
             .SetVerbosity(Verbosity.Minimal)
             .SetNodeReuse(false));
-
-        SourceLink(solution);
     };
 
     build("Cake.AndroidAppManifest.sln");
