@@ -10,6 +10,7 @@
 
 #tool GitVersion.CommandLine
 #tool GitLink
+#tool xunit.runner.console&version=2.3.0
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -30,11 +31,8 @@ var local = BuildSystem.IsLocalBuild;
 var isRunningOnUnix = IsRunningOnUnix();
 var isRunningOnWindows = IsRunningOnWindows();
 
-//var isRunningOnBitrise = Bitrise.IsRunningOnBitrise;
 var isRunningOnAppVeyor = AppVeyor.IsRunningOnAppVeyor;
 var isPullRequest = AppVeyor.Environment.PullRequest.IsPullRequest;
-
-var isRepository = StringComparer.OrdinalIgnoreCase.Equals("ghuntley/Cake.AndroidAppManifest", AppVeyor.Environment.Repository.Name);
 
 // Parse release notes.
 var releaseNotes = ParseReleaseNotes("RELEASENOTES.md");
@@ -54,7 +52,7 @@ Action Abort = () => { throw new Exception("a non-recoverable fatal error occurr
 
 Action<string> RestorePackages = (solution) =>
 {
-    NuGetRestore(solution, new NuGetRestoreSettings() { ConfigFile = "./src/.nuget/NuGet.config" });
+    NuGetRestore(solution);
 };
 
 Action<string, string> Package = (nuspec, basePath) =>
@@ -64,10 +62,10 @@ Action<string, string> Package = (nuspec, basePath) =>
     Information("Packaging {0} using {1} as the BasePath.", nuspec, basePath);
 
     NuGetPack(nuspec, new NuGetPackSettings {
-        Authors                  = new [] { "Geoffrey Huntley" },
+        Authors                  = new [] { "Geoffrey Huntley, jzeferino" },
         Owners                   = new [] { "ghuntley" },
 
-        ProjectUrl               = new Uri("https://ghuntley.com/"),
+        ProjectUrl               = new Uri("https://github.com/cake-contrib/Cake.AndroidAppManifest"),
         IconUrl                  = new Uri("https://cdn.rawgit.com/cake-contrib/graphics/a5cf0f881c390650144b2243ae551d5b9f836196/png/cake-contrib-medium.png"),
         LicenseUrl               = new Uri("https://opensource.org/licenses/MIT"),
         Copyright                = "Copyright (c) Geoffrey Huntley",
@@ -176,7 +174,6 @@ Task("Publish")
     .IsDependentOn("Package")
     .WithCriteria(() => !local)
     .WithCriteria(() => !isPullRequest)
-    .WithCriteria(() => isRepository)
     .Does (() =>
 {
     // Resolve the API key.
@@ -198,13 +195,6 @@ Task("Publish")
             Source = "https://www.myget.org/F/ghuntley/api/v2/package",
             ApiKey = apiKey
         });
-
-        // Push the symbols
-        //NuGetPush(symbolsPath, new NuGetPushSettings {
-        //    Source = "https://www.myget.org/F/ghuntley/api/v2/package",
-        //    ApiKey = apiKey
-        //});
-
     }
 });
 
