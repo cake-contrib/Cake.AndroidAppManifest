@@ -42,7 +42,7 @@ var version = releaseNotes.Version.ToString();
 var epoch = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
 var gitSha = GitVersion().Sha;
 
-var semVersion = local ? string.Format("{0}.{1}", version, epoch) : string.Format("{0}.{1}", version, epoch);
+var semVersion = string.Format("{0}.{1}", version, epoch);
 
 // Define directories.
 var artifactDirectory = "./artifacts/";
@@ -59,7 +59,7 @@ Action<string, string> Package = (nuspec, basePath) =>
 {
     CreateDirectory(artifactDirectory);
 
-    Information("Packaging {0} using {1} as the BasePath.", nuspec, basePath);
+    Information("Packaging version {0} in {1} using {2} as the BasePath.", version, nuspec, basePath);
 
     NuGetPack(nuspec, new NuGetPackSettings {
         Authors                  = new [] { "Geoffrey Huntley, jzeferino" },
@@ -71,7 +71,7 @@ Action<string, string> Package = (nuspec, basePath) =>
         Copyright                = "Copyright (c) Geoffrey Huntley",
         RequireLicenseAcceptance = false,
 
-        Version                  = semVersion,
+        Version                  = version,
         Tags                     = new [] {  "Cake", "Script", "Build", "Xamarin", "Android" },
         ReleaseNotes             = new List<string>(releaseNotes.Notes),
 
@@ -85,12 +85,12 @@ Action<string, string> Package = (nuspec, basePath) =>
 ///////////////////////////////////////////////////////////////////////////////
 // SETUP / TEARDOWN
 ///////////////////////////////////////////////////////////////////////////////
-Setup(() =>
+Setup((context) =>
 {
     Information("Building version {0} of Cake.AndroidAppManifest.", semVersion);
 });
 
-Teardown(() =>
+Teardown((context) =>
 {
     // Executed AFTER the last task.
 });
@@ -170,34 +170,6 @@ Task("Package")
     Package("./src/Cake.AndroidAppManifest.nuspec", "./src/Cake.AndroidAppManifest");
 });
 
-Task("Publish")
-    .IsDependentOn("Package")
-    .WithCriteria(() => !local)
-    .WithCriteria(() => !isPullRequest)
-    .Does (() =>
-{
-    // Resolve the API key.
-    var apiKey = EnvironmentVariable("MYGET_API_KEY");
-    if (string.IsNullOrEmpty(apiKey))
-    {
-        throw new InvalidOperationException("Could not resolve MyGet API key.");
-    }
-
-    // only push whitelisted packages.
-    foreach(var package in new[] { "Cake.AndroidAppManifest" })
-    {
-        // only push the package which was created during this build run.
-        var packagePath = artifactDirectory + File(string.Concat(package, ".", semVersion, ".nupkg"));
-        //var symbolsPath = artifactDirectory + File(string.Concat(package, ".", semVersion, ".symbols.nupkg"));
-
-        // Push the package.
-        NuGetPush(packagePath, new NuGetPushSettings {
-            Source = "https://www.myget.org/F/ghuntley/api/v2/package",
-            ApiKey = apiKey
-        });
-    }
-});
-
 //////////////////////////////////////////////////////////////////////
 // TASK TARGETS
 //////////////////////////////////////////////////////////////////////
@@ -207,4 +179,4 @@ Task("Publish")
 // EXECUTION
 //////////////////////////////////////////////////////////////////////
 
-RunTarget("Publish");
+RunTarget("Package");
