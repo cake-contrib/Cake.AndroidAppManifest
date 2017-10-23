@@ -1,6 +1,15 @@
 version: 1.0.{build}
+branches:
+  only:
+  - develop
+  - master
+  - /release/.*/
+  - /hotfix/.*/
+  - /feature/.*/
 build_script:
-- cmd: ./build.cmd
+- ps: .\build.ps1
+
 test: off
+
 artifacts:
 - path: ./artifacts/*.nupkg
