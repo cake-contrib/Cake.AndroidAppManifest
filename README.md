@@ -1,4 +1,4 @@
-## Cake.AndroidAppManifest [![Build status](https://ci.appveyor.com/api/projects/status/8ry8pnimlb1f9p78/branch/master?svg=true)](https://ci.appveyor.com/project/ghuntley/cake-androidappmanifest/branch/master)
+## Cake.AndroidAppManifest [![Build status](https://ci.appveyor.com/api/projects/status/85o5pruse4h0kotv/branch/master?svg=true)](https://ci.appveyor.com/project/cakecontrib/cake-androidappmanifest/branch/master)
 
 Cake Build addin for [de]serializing and updating an Android AppManifest.</description>
 

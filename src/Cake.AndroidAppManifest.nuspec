@@ -9,7 +9,7 @@
   </metadata>
   <files>
     <!-- Portable PCL -->
-    <file src="bin/Release/Cake.AndroidAppManifest.dll" target="lib/net462" />
+    <file src="bin/Release/Cake.AndroidAppManifest.dll" target="lib/net46" />
     <!-- Source -->
     <file src="*.cs" target="src" />
   </files>
