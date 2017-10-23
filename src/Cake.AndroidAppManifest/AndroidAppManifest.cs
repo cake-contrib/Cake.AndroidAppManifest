@@ -42,31 +42,31 @@ namespace Cake.AndroidAppManifest
 
         public string PackageName
         {
-            get { return (string) manifest.Attribute("package"); }
+            get { return (string)manifest.Attribute("package"); }
             set { manifest.SetAttributeValue("package", NullIfEmpty(value)); }
         }
 
         public string ApplicationLabel
         {
-            get { return (string) application.Attribute(aNS + "label"); }
+            get { return (string)application.Attribute(aNS + "label"); }
             set { application.SetAttributeValue(aNS + "label", NullIfEmpty(value)); }
         }
 
         public string ApplicationIcon
         {
-            get { return (string) application.Attribute(aNS + "icon"); }
+            get { return (string)application.Attribute(aNS + "icon"); }
             set { application.SetAttributeValue(aNS + "icon", NullIfEmpty(value)); }
         }
 
         public string ApplicationTheme
         {
-            get { return (string) application.Attribute(aNS + "theme"); }
+            get { return (string)application.Attribute(aNS + "theme"); }
             set { application.SetAttributeValue(aNS + "theme", NullIfEmpty(value)); }
         }
 
         public string VersionName
         {
-            get { return (string) manifest.Attribute(aNS + "versionName"); }
+            get { return (string)manifest.Attribute(aNS + "versionName"); }
             set { manifest.SetAttributeValue(aNS + "versionName", NullIfEmpty(value)); }
         }
 
@@ -78,7 +78,7 @@ namespace Cake.AndroidAppManifest
 
         public string InstallLocation
         {
-            get { return (string) manifest.Attribute(aNS + "installLocation"); }
+            get { return (string)manifest.Attribute(aNS + "installLocation"); }
             set { manifest.SetAttributeValue(aNS + "installLocation", NullIfEmpty(value)); }
         }
 
@@ -100,7 +100,7 @@ namespace Cake.AndroidAppManifest
             {
                 foreach (var el in manifest.Elements("uses-permission"))
                 {
-                    var name = (string) el.Attribute(aName);
+                    var name = (string)el.Attribute(aName);
                     if (name == null)
                     {
                         continue;
@@ -120,7 +120,7 @@ namespace Cake.AndroidAppManifest
             {
                 foreach (var el in manifest.Elements("uses-permission"))
                 {
-                    var name = (string) el.Attribute(aName);
+                    var name = (string)el.Attribute(aName);
                     if (name != null)
                     {
                         yield return name;
@@ -131,7 +131,7 @@ namespace Cake.AndroidAppManifest
 
         public bool? Debuggable
         {
-            get { return (bool?) application.Attribute(aNS + "debuggable"); }
+            get { return (bool?)application.Attribute(aNS + "debuggable"); }
             set { application.SetAttributeValue(aNS + "debuggable", value); }
         }
 
@@ -147,7 +147,7 @@ namespace Cake.AndroidAppManifest
                 throw new ArgumentException("Must specify a package name or assembly name", "packageNameOrAssemblyName");
             }
 
-            var packageParts = packageNameOrAssemblyName.Split(new[] {'.'}, StringSplitOptions.RemoveEmptyEntries);
+            var packageParts = packageNameOrAssemblyName.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
             for (var i = 0; i < packageParts.Length; ++i)
             {
                 packageParts[i] = Regex.Replace(packageParts[i], "[^A-Za-z0-9_]", "_");
@@ -200,7 +200,8 @@ namespace Cake.AndroidAppManifest
                 IndentChars = "\t",
                 NewLineChars = "\n"
             };
-            using (var writer = XmlTextWriter.Create(fileName, xmlSettings))
+            using (var stream = File.OpenWrite(fileName))
+            using (var writer = XmlWriter.Create(stream, xmlSettings))
             {
                 Write(writer);
             }
@@ -213,7 +214,7 @@ namespace Cake.AndroidAppManifest
 
         int ParseRequiredInt(XAttribute attribute)
         {
-            var value = (string) attribute;
+            var value = (string)attribute;
             if (string.IsNullOrEmpty(value))
             {
                 throw new ArgumentException("Value is not set");
@@ -230,7 +231,7 @@ namespace Cake.AndroidAppManifest
 
         private int? ParseSdkVersion(XAttribute attribute)
         {
-            var version = (string) attribute;
+            var version = (string)attribute;
             if (string.IsNullOrEmpty(version))
             {
                 return null;
@@ -297,7 +298,7 @@ namespace Cake.AndroidAppManifest
         {
             var perms = new HashSet<string>(permissions);
             var list = manifest.Elements("uses-permission")
-                .Where(el => perms.Contains((string) el.Attribute(aName))).ToList();
+                .Where(el => perms.Contains((string)el.Attribute(aName))).ToList();
             foreach (var el in list)
             {
                 el.Remove();
@@ -309,7 +310,7 @@ namespace Cake.AndroidAppManifest
         public string GetLaunchableUserActivityName()
         {
             return GetLaunchableActivities()
-                .Select(a => (string) a.Attribute(aName))
+                .Select(a => (string)a.Attribute(aName))
                 .FirstOrDefault(name => !string.IsNullOrEmpty(name) && name != "mono.android.__FastDevLauncher");
         }
 
@@ -322,7 +323,7 @@ namespace Cake.AndroidAppManifest
                 {
                     foreach (var category in filter.Elements("category"))
                     {
-                        if (category != null && (string) category.Attribute(aName) == "android.intent.category.LAUNCHER")
+                        if (category != null && (string)category.Attribute(aName) == "android.intent.category.LAUNCHER")
                         {
                             yield return activity;
                         }
@@ -335,7 +336,7 @@ namespace Cake.AndroidAppManifest
         {
             foreach (var activity in application.Elements("activity"))
             {
-                var activityName = (string) activity.Attribute(aName);
+                var activityName = (string)activity.Attribute(aName);
                 if (activityName != "mono.android.__FastDevLauncher")
                 {
                     yield return activityName;
@@ -346,7 +347,7 @@ namespace Cake.AndroidAppManifest
         public IEnumerable<string> GetLaunchableActivityNames()
         {
             return GetLaunchableActivities()
-                .Select(a => (string) a.Attribute(aName))
+                .Select(a => (string)a.Attribute(aName))
                 .Where(name => !string.IsNullOrEmpty(name) && name != "mono.android.__FastDevLauncher");
         }
     }
