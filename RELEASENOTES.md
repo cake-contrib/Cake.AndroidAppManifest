@@ -1,4 +1,4 @@
-### New in 1.0.1
+### New in 1.0.2
 - Upgraded to Cake 0.22.2 and .NET Framework 4.6.2.
 
 ### New in 1.0.0
