@@ -187,3 +187,4 @@ FakesAssemblies/
 *.userprefs
 
 .DS_Store
+/src/.vs/Cake.AndroidAppManifest/v15

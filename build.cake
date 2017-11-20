@@ -10,13 +10,13 @@
 
 #tool GitVersion.CommandLine
 #tool GitLink
-#tool xunit.runner.console&version=2.3.0
+#tool xunit.runner.console&version=2.3.1
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
 //////////////////////////////////////////////////////////////////////
 
-var target = Argument("target", "Default");
+var target = Argument("target", "Publish");
 var configuration = Argument("configuration", "Release");
 
 //////////////////////////////////////////////////////////////////////
@@ -55,32 +55,15 @@ Action<string> RestorePackages = (solution) =>
     NuGetRestore(solution);
 };
 
-Action<string, string> Package = (nuspec, basePath) =>
+Action<string> SourceLink = (solutionFileName) =>
 {
-    CreateDirectory(artifactDirectory);
-
-    Information("Packaging version {0} in {1} using {2} as the BasePath.", version, nuspec, basePath);
-
-    NuGetPack(nuspec, new NuGetPackSettings {
-        Authors                  = new [] { "Geoffrey Huntley, jzeferino" },
-        Owners                   = new [] { "ghuntley" },
-
-        ProjectUrl               = new Uri("https://github.com/cake-contrib/Cake.AndroidAppManifest"),
-        IconUrl                  = new Uri("https://cdn.rawgit.com/cake-contrib/graphics/a5cf0f881c390650144b2243ae551d5b9f836196/png/cake-contrib-medium.png"),
-        LicenseUrl               = new Uri("https://opensource.org/licenses/MIT"),
-        Copyright                = "Copyright (c) Geoffrey Huntley",
-        RequireLicenseAcceptance = false,
-
-        Version                  = version,
-        Tags                     = new [] {  "Cake", "Script", "Build", "Xamarin", "Android" },
-        ReleaseNotes             = new List<string>(releaseNotes.Notes),
-
-        Symbols                  = true,
-        Verbosity                = NuGetVerbosity.Detailed,
-        OutputDirectory          = artifactDirectory,
-        BasePath                 = basePath,
+    GitLink("./", new GitLinkSettings() {
+        RepositoryUrl = "https://github.com/ghuntley/Cake.AndroidAppManifest",
+        SolutionFileName = solutionFileName,
+        ErrorsAsWarnings = treatWarningsAsErrors,
     });
 };
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // SETUP / TEARDOWN
@@ -119,6 +102,9 @@ Task("Build")
             .WithProperty("TreatWarningsAsErrors", treatWarningsAsErrors.ToString())
             .SetVerbosity(Verbosity.Minimal)
             .SetNodeReuse(false));
+
+        //Information("Running GitLink for {0}", solution);
+        //SourceLink(solution);
     };
 
     build("Cake.AndroidAppManifest.sln");
@@ -167,7 +153,14 @@ Task("Package")
     .IsDependentOn("RunUnitTests")
     .Does (() =>
 {
-    Package("./src/Cake.AndroidAppManifest.nuspec", "./src/Cake.AndroidAppManifest");
+    // switched to msbuild-based nuget creation
+    // see here for parameters: https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets
+    MSBuild ("./src/Cake.AndroidAppManifest/Cake.AndroidAppManifest.csproj", c => {
+		c.Configuration = configuration;
+		c.Targets.Add ("pack");
+		c.Properties.Add ("IncludeSymbols", new List<string> { "true" });
+		c.Properties.Add ("PackageReleaseNotes", new List<string>(releaseNotes.Notes));
+	});
 });
 
 //////////////////////////////////////////////////////////////////////
@@ -179,4 +172,4 @@ Task("Package")
 // EXECUTION
 //////////////////////////////////////////////////////////////////////
 
-RunTarget("Package");
+RunTarget(target);
