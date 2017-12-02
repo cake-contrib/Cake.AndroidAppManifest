@@ -1,3 +1,6 @@
+### New in 1.0.3
+- Upgraded to .NET Standard 1.6.
+
 ### New in 1.0.2
 - Upgraded to Cake 0.22.2 and .NET Framework 4.6.2.
 
