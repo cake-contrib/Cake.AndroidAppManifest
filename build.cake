@@ -16,7 +16,7 @@
 // ARGUMENTS
 //////////////////////////////////////////////////////////////////////
 
-var target = Argument("target", "Publish");
+var target = Argument("target", "Package");
 var configuration = Argument("configuration", "Release");
 
 //////////////////////////////////////////////////////////////////////
@@ -47,23 +47,10 @@ var semVersion = string.Format("{0}.{1}", version, epoch);
 // Define directories.
 var artifactDirectory = "./artifacts/";
 
-// Define global marcos.
-Action Abort = () => { throw new Exception("a non-recoverable fatal error occurred."); };
-
 Action<string> RestorePackages = (solution) =>
 {
     NuGetRestore(solution);
 };
-
-Action<string> SourceLink = (solutionFileName) =>
-{
-    GitLink("./", new GitLinkSettings() {
-        RepositoryUrl = "https://github.com/ghuntley/Cake.AndroidAppManifest",
-        SolutionFileName = solutionFileName,
-        ErrorsAsWarnings = treatWarningsAsErrors,
-    });
-};
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // SETUP / TEARDOWN
@@ -102,9 +89,6 @@ Task("Build")
             .WithProperty("TreatWarningsAsErrors", treatWarningsAsErrors.ToString())
             .SetVerbosity(Verbosity.Minimal)
             .SetNodeReuse(false));
-
-        //Information("Running GitLink for {0}", solution);
-        //SourceLink(solution);
     };
 
     build("Cake.AndroidAppManifest.sln");
@@ -156,11 +140,12 @@ Task("Package")
     // switched to msbuild-based nuget creation
     // see here for parameters: https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets
     MSBuild ("./src/Cake.AndroidAppManifest/Cake.AndroidAppManifest.csproj", c => {
-		c.Configuration = configuration;
-		c.Targets.Add ("pack");
-		c.Properties.Add ("IncludeSymbols", new List<string> { "true" });
-		c.Properties.Add ("PackageReleaseNotes", new List<string>(releaseNotes.Notes));
-	});
+     c.Configuration = configuration;
+     c.Targets.Add ("pack");
+     c.Properties.Add("IncludeSymbols", new List<string> { "true" });
+     c.Properties.Add("PackageReleaseNotes", new List<string>(releaseNotes.Notes));
+     c.Properties.Add("PackageVersion", new List<string> { version });
+    });
 });
 
 //////////////////////////////////////////////////////////////////////
