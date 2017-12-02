@@ -1,20 +1,24 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Cake.Core;
+using Cake.Core.Diagnostics;
 using Cake.Core.IO;
+using Cake.Core.Tooling;
 using FluentAssertions;
-using NSubstitute;
 using Xunit;
 
 namespace Cake.AndroidAppManifest.Tests
 {
     public class AndroidManifestAliasesTest
     {
+        public AndroidManifestAliasesTest()
+        {
+            Cake = new CakeContextMock();
+        }
+
         [Fact]
         public void SerializeTest()
         {
-            var cake = Substitute.For<ICakeContext>();
-            var manifest = cake.DeserializeAppManifest(new FilePath("AndroidManifest.xml"));
+            var manifest = Cake.DeserializeAppManifest(new FilePath("AndroidManifest.xml"));
             manifest.MinSdkVersion.Should().Be(15);
             manifest.PackageName.Should().Be("com.example.android");
             manifest.VersionName.Should().Be("1.0");
@@ -25,6 +29,9 @@ namespace Cake.AndroidAppManifest.Tests
 
 
         const string SaveTestPath = "Test.xml";
+
+        private CakeContextMock Cake { get; }
+
         [Fact]
         public void SaveTest()
         {
@@ -38,17 +45,28 @@ namespace Cake.AndroidAppManifest.Tests
             originalManifest.VersionName = "3.3";
             originalManifest.VersionCode = 2;
             originalManifest.ApplicationIcon = "@drawable/icon";
+            
+            Cake.SerializeAppManifest(SaveTestPath, originalManifest);
 
-            var cake = Substitute.For<ICakeContext> ();
-            cake.SerializeAppManifest(SaveTestPath, originalManifest);
-
-            var modifiedManifest = cake.DeserializeAppManifest(new FilePath(SaveTestPath));
+            var modifiedManifest = Cake.DeserializeAppManifest(new FilePath(SaveTestPath));
             modifiedManifest.PackageName.Should().Be(originalManifest.PackageName);
             modifiedManifest.ApplicationLabel.Should().Be(originalManifest.ApplicationLabel);
             modifiedManifest.ApplicationIcon.Should().Be(originalManifest.ApplicationIcon);
             modifiedManifest.MinSdkVersion.Should().Be(originalManifest.MinSdkVersion);
             modifiedManifest.VersionName.Should().Be("3.3");
             modifiedManifest.VersionCode.Should().Be(2);
+        }
+
+        private class CakeContextMock : ICakeContext
+        {
+            public IFileSystem FileSystem { get; }
+            public ICakeEnvironment Environment { get; }
+            public IGlobber Globber { get; }
+            public ICakeLog Log { get; }
+            public ICakeArguments Arguments { get; }
+            public IProcessRunner ProcessRunner { get; }
+            public IRegistry Registry { get; }
+            public IToolLocator Tools { get; }
         }
     }
 }

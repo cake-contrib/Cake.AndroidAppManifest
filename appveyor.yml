@@ -7,9 +7,11 @@ branches:
   - /hotfix/.*/
   - /feature/.*/
 build_script:
-- ps: .\build.ps1
+- ps: .\build.ps1 RunUnitTests
 
 test: off
+
+image: Visual Studio 2017
 
 artifacts:
 - path: ./artifacts/*.nupkg

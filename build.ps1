@@ -13,12 +13,8 @@ This is a Powershell script to bootstrap a Cake build.
 This Powershell script will download NuGet if missing, restore NuGet tools (including Cake)
 and execute your Cake build script with the parameters you provide.
 
-.PARAMETER Script
-The build script to execute.
 .PARAMETER Target
 The build script target to run.
-.PARAMETER Configuration
-The build configuration to use.
 .PARAMETER Verbosity
 Specifies the amount of information to be displayed.
 .PARAMETER Experimental
@@ -34,16 +30,14 @@ Skips restoring of packages.
 Remaining arguments are added here.
 
 .LINK
-https://cakebuild.net
+http://cakebuild.net
 
 #>
 
 [CmdletBinding()]
 Param(
-    [string]$Script = "build.cake",
-    [string]$Target = "Default",
-    [ValidateSet("Release", "Debug")]
-    [string]$Configuration = "Release",
+    [Parameter(Position=0,Mandatory=$true)]
+    [string]$Target,
     [ValidateSet("Quiet", "Minimal", "Normal", "Verbose", "Diagnostic")]
     [string]$Verbosity = "Verbose",
     [switch]$Experimental,
@@ -51,7 +45,7 @@ Param(
     [switch]$WhatIf,
     [switch]$Mono,
     [switch]$SkipToolPackageRestore,
-    [Parameter(Position=0,Mandatory=$false,ValueFromRemainingArguments=$true)]
+    [Parameter(Position=1,Mandatory=$false,ValueFromRemainingArguments=$true)]
     [string[]]$ScriptArgs
 )
 
@@ -87,11 +81,15 @@ if(!$PSScriptRoot){
 }
 
 $TOOLS_DIR = Join-Path $PSScriptRoot "tools"
+$ADDINS_DIR = Join-Path $TOOLS_DIR "Addins"
+$MODULES_DIR = Join-Path $TOOLS_DIR "Modules"
 $NUGET_EXE = Join-Path $TOOLS_DIR "nuget.exe"
 $CAKE_EXE = Join-Path $TOOLS_DIR "Cake/Cake.exe"
 $NUGET_URL = "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe"
 $PACKAGES_CONFIG = Join-Path $TOOLS_DIR "packages.config"
 $PACKAGES_CONFIG_MD5 = Join-Path $TOOLS_DIR "packages.config.md5sum"
+$ADDINS_PACKAGES_CONFIG = Join-Path $ADDINS_DIR "packages.config"
+$MODULES_PACKAGES_CONFIG = Join-Path $MODULES_DIR "packages.config"
 
 # Should we use mono?
 $UseMono = "";
@@ -122,7 +120,7 @@ if ((Test-Path $PSScriptRoot) -and !(Test-Path $TOOLS_DIR)) {
 # Make sure that packages.config exist.
 if (!(Test-Path $PACKAGES_CONFIG)) {
     Write-Verbose -Message "Downloading packages.config..."
-    try { (New-Object System.Net.WebClient).DownloadFile("https://cakebuild.net/download/bootstrapper/packages", $PACKAGES_CONFIG) } catch {
+    try { (New-Object System.Net.WebClient).DownloadFile("http://cakebuild.net/download/bootstrapper/packages", $PACKAGES_CONFIG) } catch {
         Throw "Could not download packages.config."
     }
 }
@@ -175,6 +173,41 @@ if(-Not $SkipToolPackageRestore.IsPresent) {
         $md5Hash | Out-File $PACKAGES_CONFIG_MD5 -Encoding "ASCII"
     }
     Write-Verbose -Message ($NuGetOutput | out-string)
+    
+    Pop-Location
+}
+
+# Restore addins from NuGet
+if (Test-Path $ADDINS_PACKAGES_CONFIG) {
+    Push-Location
+    Set-Location $ADDINS_DIR
+
+    Write-Verbose -Message "Restoring addins from NuGet..."
+    $NuGetOutput = Invoke-Expression "&`"$NUGET_EXE`" install -ExcludeVersion -OutputDirectory `"$ADDINS_DIR`""
+
+    if ($LASTEXITCODE -ne 0) {
+        Throw "An error occured while restoring NuGet addins."
+    }
+
+    Write-Verbose -Message ($NuGetOutput | out-string)
+
+    Pop-Location
+}
+
+# Restore modules from NuGet
+if (Test-Path $MODULES_PACKAGES_CONFIG) {
+    Push-Location
+    Set-Location $MODULES_DIR
+
+    Write-Verbose -Message "Restoring modules from NuGet..."
+    $NuGetOutput = Invoke-Expression "&`"$NUGET_EXE`" install -ExcludeVersion -OutputDirectory `"$MODULES_DIR`""
+
+    if ($LASTEXITCODE -ne 0) {
+        Throw "An error occured while restoring NuGet modules."
+    }
+
+    Write-Verbose -Message ($NuGetOutput | out-string)
+
     Pop-Location
 }
 
@@ -185,5 +218,5 @@ if (!(Test-Path $CAKE_EXE)) {
 
 # Start Cake
 Write-Host "Running build script..."
-Invoke-Expression "& `"$CAKE_EXE`" `"$Script`" -target=`"$Target`" -configuration=`"$Configuration`" -verbosity=`"$Verbosity`" $UseMono $UseDryRun $UseExperimental $ScriptArgs"
+Invoke-Expression "& `"$CAKE_EXE`" build.cake -target=`"$Target`" -verbosity=`"$Verbosity`" $UseMono $UseDryRun $UseExperimental $ScriptArgs"
 exit $LASTEXITCODE
