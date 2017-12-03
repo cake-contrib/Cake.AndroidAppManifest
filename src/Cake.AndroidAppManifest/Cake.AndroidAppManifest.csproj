@@ -28,7 +28,6 @@
     <OutputPath>bin\Release</OutputPath>
   </PropertyGroup>
 
-
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net46|AnyCPU'">
     <OutputPath>bin\Debug</OutputPath>
   </PropertyGroup>
