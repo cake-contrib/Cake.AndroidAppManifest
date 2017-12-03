@@ -28,11 +28,8 @@ var treatWarningsAsErrors = false;
 
 // Get whether or not this is a local build.
 var local = BuildSystem.IsLocalBuild;
-var isRunningOnUnix = IsRunningOnUnix();
 var isRunningOnWindows = IsRunningOnWindows();
-
 var isRunningOnAppVeyor = AppVeyor.IsRunningOnAppVeyor;
-var isPullRequest = AppVeyor.Environment.PullRequest.IsPullRequest;
 
 // Parse release notes.
 var releaseNotes = ParseReleaseNotes("RELEASENOTES.md");
@@ -40,29 +37,22 @@ var releaseNotes = ParseReleaseNotes("RELEASENOTES.md");
 // Get version.
 var version = releaseNotes.Version.ToString();
 var epoch = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
-var gitSha = GitVersion().Sha;
 
 var semVersion = string.Format("{0}.{1}", version, epoch);
 
-// Define directories.
-var artifactDirectory = "./artifacts/";
-
-Action<string> RestorePackages = (solution) =>
-{
-    NuGetRestore(solution);
-};
+// Define directories. (msbuild /pack requires absolute path)
+var artifactDirectory = MakeAbsolute(File("./artifacts/")).ToString();
+var solutionFile = new FilePath("src/Cake.AndroidAppManifest.sln");
 
 ///////////////////////////////////////////////////////////////////////////////
 // SETUP / TEARDOWN
 ///////////////////////////////////////////////////////////////////////////////
+
 Setup((context) =>
 {
     Information("Building version {0} of Cake.AndroidAppManifest.", semVersion);
-});
-
-Teardown((context) =>
-{
-    // Executed AFTER the last task.
+    Information("isRunningOnAppVeyor: {0}", isRunningOnAppVeyor);
+	Information ("Running on Windows: {0}", isRunningOnWindows);
 });
 
 //////////////////////////////////////////////////////////////////////
@@ -74,24 +64,14 @@ Task("Build")
     .IsDependentOn("UpdateAssemblyInfo")
     .Does (() =>
 {
-    Action<string> build = (filename) =>
-    {
-        var solution = System.IO.Path.Combine("./src/", filename);
+    Information("Building {0}", solutionFile);
 
-        // UWP (project.json) needs to be restored before it will build.
-        RestorePackages(solution);
-
-        Information("Building {0}", solution);
-
-        MSBuild(solution, new MSBuildSettings()
-            .SetConfiguration(configuration)
-            .WithProperty("NoWarn", "1591") // ignore missing XML doc warnings
-            .WithProperty("TreatWarningsAsErrors", treatWarningsAsErrors.ToString())
-            .SetVerbosity(Verbosity.Minimal)
-            .SetNodeReuse(false));
-    };
-
-    build("Cake.AndroidAppManifest.sln");
+    MSBuild(solutionFile, new MSBuildSettings()
+        .SetConfiguration(configuration)
+        .WithProperty("NoWarn", "1591") // ignore missing XML doc warnings
+        .WithProperty("TreatWarningsAsErrors", treatWarningsAsErrors.ToString())
+        .SetVerbosity(Verbosity.Minimal)
+        .SetNodeReuse(false));
 });
 
 Task("UpdateAppVeyorBuildNumber")
@@ -118,7 +98,7 @@ Task("UpdateAssemblyInfo")
 
 Task("RestorePackages").Does (() =>
 {
-    RestorePackages("./src/Cake.AndroidAppManifest.sln");
+    NuGetRestore(solutionFile);
 });
 
 Task("RunUnitTests")
@@ -127,8 +107,7 @@ Task("RunUnitTests")
 {
     XUnit2("./src/Cake.AndroidAppManifest.Tests/bin/Release/Cake.AndroidAppManifest.Tests.dll", new XUnit2Settings {
         OutputDirectory = artifactDirectory,
-        XmlReportV1 = false,
-        NoAppDomain = true
+        XmlReport = true
     });
 });
 
@@ -140,18 +119,13 @@ Task("Package")
     // switched to msbuild-based nuget creation
     // see here for parameters: https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets
     MSBuild ("./src/Cake.AndroidAppManifest/Cake.AndroidAppManifest.csproj", c => {
-     c.Configuration = configuration;
-     c.Targets.Add ("pack");
-     c.Properties.Add("IncludeSymbols", new List<string> { "true" });
-     c.Properties.Add("PackageReleaseNotes", new List<string>(releaseNotes.Notes));
-     c.Properties.Add("PackageVersion", new List<string> { version });
+        c.Configuration = configuration;
+        c.Targets.Add ("pack");
+        c.Properties.Add("IncludeSymbols", new List<string> { "true" });
+        c.Properties.Add("PackageReleaseNotes", new List<string>(releaseNotes.Notes));
+        c.Properties.Add("PackageVersion", new List<string> { version });
     });
 });
-
-//////////////////////////////////////////////////////////////////////
-// TASK TARGETS
-//////////////////////////////////////////////////////////////////////
-
 
 //////////////////////////////////////////////////////////////////////
 // EXECUTION
