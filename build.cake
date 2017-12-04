@@ -124,6 +124,7 @@ Task("Package")
         c.Properties.Add("IncludeSymbols", new List<string> { "true" });
         c.Properties.Add("PackageReleaseNotes", new List<string>(releaseNotes.Notes));
         c.Properties.Add("PackageVersion", new List<string> { version });
+        c.Properties.Add("PackageOutputPath", new List<string> { artifactDirectory });
     });
 });
 
