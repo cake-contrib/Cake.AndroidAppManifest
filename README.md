@@ -1,4 +1,5 @@
-## Cake.AndroidAppManifest [![Build status](https://ci.appveyor.com/api/projects/status/85o5pruse4h0kotv/branch/master?svg=true)](https://ci.appveyor.com/project/cakecontrib/cake-androidappmanifest/branch/master)
+## Cake.AndroidAppManifest [![Build status](https://ci.appveyor.com/api/projects/status/85o5pruse4h0kotv/branch/master?svg=true)](https://ci.appveyor.com/project/cakecontrib/cake-androidappmanifest/branch/master) [![NuGet](https://img.shields.io/nuget/v/Cake.AndroidAppManifest.svg?label=NuGet)](https://www.nuget.org/packages/Cake.AndroidAppManifest/) [![NuGet Downloads](https://img.shields.io/nuget/dt/Cake.AndroidAppManifest.svg)](https://www.nuget.org/packages/Cake.AndroidAppManifest/)
+
 
 Cake Build addin for [de]serializing and updating an Android AppManifest.</description>
 
