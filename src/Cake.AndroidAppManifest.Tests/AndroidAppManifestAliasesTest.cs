@@ -1,22 +1,24 @@
 ﻿using System.IO;
 using Cake.Core;
-using Cake.Core.Diagnostics;
 using Cake.Core.IO;
-using Cake.Core.Tooling;
 using FluentAssertions;
+using NSubstitute;
 using Xunit;
 
 namespace Cake.AndroidAppManifest.Tests
 {
     public class AndroidManifestAliasesTest
     {
+        private const string SaveTestPath = "Test.xml";
+        private ICakeContext Cake { get; }
+
         public AndroidManifestAliasesTest()
         {
-            Cake = new CakeContextMock();
+            Cake = Substitute.For<ICakeContext>();
         }
 
         [Fact]
-        public void SerializeTest()
+        public void DeserializeTest()
         {
             var manifest = Cake.DeserializeAppManifest(new FilePath("AndroidManifest.xml"));
             manifest.MinSdkVersion.Should().Be(15);
@@ -25,15 +27,10 @@ namespace Cake.AndroidAppManifest.Tests
             manifest.VersionCode.Should().Be(1);
             manifest.ApplicationIcon.Should().Be("@drawable/icon");
             manifest.ApplicationLabel.Should().Be("Android Application");
-        }
-
-
-        const string SaveTestPath = "Test.xml";
-
-        private CakeContextMock Cake { get; }
+        }      
 
         [Fact]
-        public void SaveTest()
+        public void SerializeTest()
         {
             if (File.Exists(SaveTestPath))
             {
@@ -55,18 +52,6 @@ namespace Cake.AndroidAppManifest.Tests
             modifiedManifest.MinSdkVersion.Should().Be(originalManifest.MinSdkVersion);
             modifiedManifest.VersionName.Should().Be("3.3");
             modifiedManifest.VersionCode.Should().Be(2);
-        }
-
-        private class CakeContextMock : ICakeContext
-        {
-            public IFileSystem FileSystem { get; }
-            public ICakeEnvironment Environment { get; }
-            public IGlobber Globber { get; }
-            public ICakeLog Log { get; }
-            public ICakeArguments Arguments { get; }
-            public IProcessRunner ProcessRunner { get; }
-            public IRegistry Registry { get; }
-            public IToolLocator Tools { get; }
         }
     }
 }
