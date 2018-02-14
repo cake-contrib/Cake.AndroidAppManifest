@@ -139,12 +139,12 @@ namespace Cake.AndroidAppManifest
         {
             if (packageNameOrAssemblyName == null)
             {
-                throw new ArgumentNullException("packageNameOrAssemblyName");
+                throw new ArgumentNullException(nameof(packageNameOrAssemblyName));
             }
 
             if (string.IsNullOrEmpty(packageNameOrAssemblyName = packageNameOrAssemblyName.Trim()))
             {
-                throw new ArgumentException("Must specify a package name or assembly name", "packageNameOrAssemblyName");
+                throw new ArgumentException("Must specify a package name or assembly name", nameof(packageNameOrAssemblyName));
             }
 
             var packageParts = packageNameOrAssemblyName.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
