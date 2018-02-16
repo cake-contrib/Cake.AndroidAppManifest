@@ -11,6 +11,7 @@ namespace Cake.AndroidAppManifest
 {
     public class AndroidAppManifest
     {
+        private static readonly int MaxApiLevel = 27;
         private static readonly XNamespace aNS = "http://schemas.android.com/apk/res/android";
         private static readonly XName aName = aNS + "name";
         private readonly XDocument doc;
@@ -240,7 +241,7 @@ namespace Cake.AndroidAppManifest
             int vn;
             if (!int.TryParse(version, out vn))
             {
-                vn = AndroidVersion.MaxApiLevel;
+                vn = MaxApiLevel;
             }
             return vn;
         }
