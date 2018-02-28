@@ -9,7 +9,7 @@ namespace Cake.AndroidAppManifest
     ///     Contains functionality to work with Android AppManifest files.
     /// </summary>
     [CakeAliasCategory("AndroidAppManifest")]
-    public static class AndoridAppManifestAliases
+    public static class AndroidAppManifestAliases
     {
 
       /// <summary>

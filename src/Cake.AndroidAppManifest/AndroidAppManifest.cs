@@ -11,6 +11,7 @@ namespace Cake.AndroidAppManifest
 {
     public class AndroidAppManifest
     {
+        private static readonly int MaxApiLevel = 27;
         private static readonly XNamespace aNS = "http://schemas.android.com/apk/res/android";
         private static readonly XName aName = aNS + "name";
         private readonly XDocument doc;
@@ -139,12 +140,12 @@ namespace Cake.AndroidAppManifest
         {
             if (packageNameOrAssemblyName == null)
             {
-                throw new ArgumentNullException("packageNameOrAssemblyName");
+                throw new ArgumentNullException(nameof(packageNameOrAssemblyName));
             }
 
             if (string.IsNullOrEmpty(packageNameOrAssemblyName = packageNameOrAssemblyName.Trim()))
             {
-                throw new ArgumentException("Must specify a package name or assembly name", "packageNameOrAssemblyName");
+                throw new ArgumentException("Must specify a package name or assembly name", nameof(packageNameOrAssemblyName));
             }
 
             var packageParts = packageNameOrAssemblyName.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
@@ -240,7 +241,7 @@ namespace Cake.AndroidAppManifest
             int vn;
             if (!int.TryParse(version, out vn))
             {
-                vn = AndroidVersion.MaxApiLevel;
+                vn = MaxApiLevel;
             }
             return vn;
         }

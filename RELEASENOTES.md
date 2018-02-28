@@ -1,3 +1,6 @@
+### New in 1.0.4
+- Fixed 'AndoridAppManifestAliases' typo not corrected in class name #24
+
 ### New in 1.0.3
 - Upgraded to .NET Standard 1.6.
 

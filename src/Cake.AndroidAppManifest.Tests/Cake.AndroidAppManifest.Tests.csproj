@@ -48,15 +48,16 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Cake.Core" Version="0.22.0" />
-    <PackageReference Include="Cake.Testing" Version="0.23.0" />
-    <PackageReference Include="FluentAssertions" Version="4.19.4" />
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.abstractions" Version="2.0.1" />
     <PackageReference Include="xunit.assert" Version="2.3.1" />
     <PackageReference Include="xunit.core" Version="2.3.1" />
     <PackageReference Include="xunit.extensibility.core" Version="2.3.1" />
     <PackageReference Include="xunit.extensibility.execution" Version="2.3.1" />
+    <PackageReference Include="Cake.Core" Version="0.25.0" />
+    <PackageReference Include="Cake.Testing" Version="0.25.0" />
+    <PackageReference Include="NSubstitute" Version="3.1.0" />
+    <PackageReference Include="FluentAssertions" Version="5.1.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cake.AndroidAppManifest\Cake.AndroidAppManifest.csproj">
