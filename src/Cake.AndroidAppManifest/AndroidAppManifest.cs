@@ -86,13 +86,13 @@ namespace Cake.AndroidAppManifest
         public int? MinSdkVersion
         {
             get { return ParseSdkVersion(usesSdk.Attribute(aNS + "minSdkVersion")); }
-            set { usesSdk.SetAttributeValue(aNS + "minSdkVersion", value == null ? null : value.ToString()); }
+            set { usesSdk.SetAttributeValue(aNS + "minSdkVersion", value?.ToString()); }
         }
 
         public int? TargetSdkVersion
         {
             get { return ParseSdkVersion(usesSdk.Attribute(aNS + "targetSdkVersion")); }
-            set { usesSdk.SetAttributeValue(aNS + "targetSdkVersion", value == null ? null : value.ToString()); }
+            set { usesSdk.SetAttributeValue(aNS + "targetSdkVersion", value?.ToString()); }
         }
 
         public IEnumerable<string> AndroidPermissions
