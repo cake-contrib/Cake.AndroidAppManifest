@@ -11,6 +11,7 @@
 #tool GitVersion.CommandLine
 #tool GitLink
 #tool xunit.runner.console&version=2.3.1
+#tool vswhere
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -59,19 +60,41 @@ Setup((context) =>
 // TASKS
 //////////////////////////////////////////////////////////////////////
 
+FilePath msBuildPath;
+Task("ResolveBuildTools")
+    .WithCriteria(() => isRunningOnWindows)
+    .Does(() => 
+{
+    var vsWhereSettings = new VSWhereLatestSettings
+    {
+        IncludePrerelease = true
+    };
+    
+    var vsLatest = VSWhereLatest();
+    msBuildPath = (vsLatest == null)
+        ? null
+        : vsLatest.CombineWithFilePath("./MSBuild/15.0/Bin/MSBuild.exe");
+});
+
 Task("Build")
+    .IsDependentOn("ResolveBuildtools")
     .IsDependentOn("RestorePackages")
     .IsDependentOn("UpdateAssemblyInfo")
     .Does (() =>
 {
     Information("Building {0}", solutionFile);
 
-    MSBuild(solutionFile, new MSBuildSettings()
+    var settings = new MSBuildSettings()
         .SetConfiguration(configuration)
         .WithProperty("NoWarn", "1591") // ignore missing XML doc warnings
         .WithProperty("TreatWarningsAsErrors", treatWarningsAsErrors.ToString())
         .SetVerbosity(Verbosity.Minimal)
-        .SetNodeReuse(false));
+        .SetNodeReuse(false);
+
+    if (msBuildPath != null)
+        settings.ToolPath = msBuildPath;
+
+    MSBuild(solutionFile, settings);
 });
 
 Task("UpdateAppVeyorBuildNumber")
@@ -118,14 +141,19 @@ Task("Package")
 {
     // switched to msbuild-based nuget creation
     // see here for parameters: https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets
-    MSBuild ("./src/Cake.AndroidAppManifest/Cake.AndroidAppManifest.csproj", c => {
-        c.Configuration = configuration;
-        c.Targets.Add ("pack");
-        c.Properties.Add("IncludeSymbols", new List<string> { "true" });
-        c.Properties.Add("PackageReleaseNotes", new List<string>(releaseNotes.Notes));
-        c.Properties.Add("PackageVersion", new List<string> { version });
-        c.Properties.Add("PackageOutputPath", new List<string> { artifactDirectory });
-    });
+    var settings = new MSBuildSettings()
+        .SetConfiguration(configuration)
+        .WithTarget("pack")
+        .WithProperty("IncludeSymbols", "True")
+        .WithProperty("PackageVersion", version)
+        .WithProperty("PackageOutputPath", artifactDirectory);
+
+        settings.Properties.Add("PackageReleaseNotes", new List<string>(releaseNotes.Notes));
+
+    if (msBuildPath != null)
+        settings.ToolPath = msBuildPath;
+
+    MSBuild ("./src/Cake.AndroidAppManifest/Cake.AndroidAppManifest.csproj", settings);
 });
 
 //////////////////////////////////////////////////////////////////////
