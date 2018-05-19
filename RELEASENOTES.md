@@ -1,3 +1,6 @@
+### New in 1.1.0
+- Upgraded to Cake 0.27.2 and to .NET Standard 2.0
+
 ### New in 1.0.4
 - Fixed 'AndoridAppManifestAliases' typo not corrected in class name #24
 
