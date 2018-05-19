@@ -6,8 +6,9 @@
 using System.Reflection;
 
 [assembly: AssemblyProduct("Cake.AndroidAppManifest")]
-[assembly: AssemblyVersion("1.0.4")]
-[assembly: AssemblyFileVersion("1.0.4")]
-[assembly: AssemblyInformationalVersion("1.0.4.1519853365")]
+[assembly: AssemblyVersion("1.1.0")]
+[assembly: AssemblyFileVersion("1.1.0")]
+[assembly: AssemblyInformationalVersion("1.1.0.1526626913")]
 [assembly: AssemblyCopyright("Copyright (c) Geoffrey Huntley")]
+[assembly: AssemblyCopyright("Copyright (c) Geoffrey Huntley, jzeferino")]
 
