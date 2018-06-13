@@ -79,7 +79,7 @@ Task("ResolveBuildTools")
 Task("Build")
     .IsDependentOn("ResolveBuildtools")
     .IsDependentOn("RestorePackages")
-    .IsDependentOn("UpdateAssemblyInfo")
+    .IsDependentOn("UpdateAppVeyorBuildNumber")
     .Does (() =>
 {
     Information("Building {0}", solutionFile);
@@ -102,21 +102,6 @@ Task("UpdateAppVeyorBuildNumber")
     .Does(() =>
 {
     AppVeyor.UpdateBuildVersion(semVersion);
-});
-
-Task("UpdateAssemblyInfo")
-    .IsDependentOn("UpdateAppVeyorBuildNumber")
-    .Does (() =>
-{
-    var file = "./src/CommonAssemblyInfo.cs";
-
-    CreateAssemblyInfo(file, new AssemblyInfoSettings {
-        Product = "Cake.AndroidAppManifest",
-        Version = version,
-        FileVersion = version,
-        InformationalVersion = semVersion,
-        Copyright = "Copyright (c) Geoffrey Huntley"
-    });
 });
 
 Task("RestorePackages").Does (() =>

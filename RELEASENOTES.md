@@ -1,3 +1,7 @@
+### New in 1.1.1
+- Upgraded to Cake 0.28.0.
+- Only target .NET Standard 2.0.
+
 ### New in 1.1.0
 - Upgraded to Cake 0.27.2 and to .NET Standard 2.0
 
