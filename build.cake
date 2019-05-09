@@ -2,16 +2,15 @@
 // ADDINS
 //////////////////////////////////////////////////////////////////////
 
-#addin "Cake.FileHelpers"
+#addin Cake.FileHelpers&version=3.2.0
 
 //////////////////////////////////////////////////////////////////////
 // TOOLS
 //////////////////////////////////////////////////////////////////////
 
-#tool GitVersion.CommandLine
-#tool GitLink
-#tool xunit.runner.console&version=2.3.1
-#tool vswhere
+#tool GitVersion.CommandLine&version=4.0.0
+#tool xunit.runner.console&version=2.4.1
+#tool vswhere&version=2.6.7
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -24,7 +23,7 @@ var configuration = Argument("configuration", "Release");
 // PREPARATION
 //////////////////////////////////////////////////////////////////////
 
-// should MSBuild & GitLink treat any errors as warnings.
+// Should MSBuild treat any errors as warnings.
 var treatWarningsAsErrors = false;
 
 // Get whether or not this is a local build.
@@ -60,41 +59,19 @@ Setup((context) =>
 // TASKS
 //////////////////////////////////////////////////////////////////////
 
-FilePath msBuildPath;
-Task("ResolveBuildTools")
-    .WithCriteria(() => isRunningOnWindows)
-    .Does(() => 
-{
-    var vsWhereSettings = new VSWhereLatestSettings
-    {
-        IncludePrerelease = true
-    };
-    
-    var vsLatest = VSWhereLatest();
-    msBuildPath = (vsLatest == null)
-        ? null
-        : vsLatest.CombineWithFilePath("./MSBuild/15.0/Bin/MSBuild.exe");
-});
-
 Task("Build")
-    .IsDependentOn("ResolveBuildtools")
     .IsDependentOn("RestorePackages")
     .IsDependentOn("UpdateAppVeyorBuildNumber")
     .Does (() =>
 {
     Information("Building {0}", solutionFile);
 
-    var settings = new MSBuildSettings()
+    MSBuild(solutionFile, new MSBuildSettings()
         .SetConfiguration(configuration)
         .WithProperty("NoWarn", "1591") // ignore missing XML doc warnings
         .WithProperty("TreatWarningsAsErrors", treatWarningsAsErrors.ToString())
         .SetVerbosity(Verbosity.Minimal)
-        .SetNodeReuse(false);
-
-    if (msBuildPath != null)
-        settings.ToolPath = msBuildPath;
-
-    MSBuild(solutionFile, settings);
+        .SetNodeReuse(false));
 });
 
 Task("UpdateAppVeyorBuildNumber")
@@ -134,9 +111,6 @@ Task("Package")
         .WithProperty("PackageOutputPath", artifactDirectory);
 
         settings.Properties.Add("PackageReleaseNotes", new List<string>(releaseNotes.Notes));
-
-    if (msBuildPath != null)
-        settings.ToolPath = msBuildPath;
 
     MSBuild ("./src/Cake.AndroidAppManifest/Cake.AndroidAppManifest.csproj", settings);
 });
